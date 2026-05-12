@@ -39,13 +39,13 @@ jobs:
           git config user.email "raghavendra.krishnamurthy@prixgen.com"
 
           git add .
-
           git commit -m "Updated module: ${{ github.event.inputs.module_name }}" || echo "No changes"
 
-      - name: Pull Latest Changes
+      - name: Sync with Remote (IMPORTANT FIX)
         run: |
-          git pull origin main --rebase
+          git fetch origin main
+          git rebase origin/main
 
-      - name: Push Changes
+      - name: Push Changes (SAFE)
         run: |
-          git push origin main --force
+          git push origin main

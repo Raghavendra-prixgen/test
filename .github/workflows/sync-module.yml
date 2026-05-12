@@ -15,37 +15,45 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout deploy repo
       - name: Checkout Deploy Repo
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
+      # 2. ALWAYS sync first (IMPORTANT FIX)
+      - name: Sync with Remote Main
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+
+      # 3. Clone developer repo
       - name: Clone Developer Repo
         run: |
           git clone https://github.com/Raghavendra-prixgen/new-test-.git upstream
 
+      # 4. Copy selected module
       - name: Copy Selected Module
         run: |
           rm -rf ${{ github.event.inputs.module_name }}
           cp -r upstream/${{ github.event.inputs.module_name }} ./
 
+      # 5. Cleanup upstream repo
       - name: Remove Upstream Repo
         run: |
           rm -rf upstream
 
+      # 6. Commit changes on clean base
       - name: Commit Changes
         run: |
           git config user.name "Raghavendra-prixgen"
           git config user.email "raghavendra.krishnamurthy@prixgen.com"
 
           git add .
-          git commit -m "Updated module: ${{ github.event.inputs.module_name }}" || echo "No changes"
 
-      - name: Sync with Remote (IMPORTANT FIX)
-        run: |
-          git fetch origin main
-          git rebase origin/main
+          git commit -m "Updated module: ${{ github.event.inputs.module_name }}" || echo "No changes to commit"
 
-      - name: Push Changes (SAFE)
+      # 7. Push safely (NO FORCE, NO REBASE)
+      - name: Push Changes
         run: |
           git push origin main

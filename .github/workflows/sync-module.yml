@@ -40,4 +40,5 @@ jobs:
 
       - name: Push Changes
         run: |
+          git pull origin main --rebase
           git push origin main

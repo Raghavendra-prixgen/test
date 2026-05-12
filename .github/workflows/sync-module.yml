@@ -1,5 +1,8 @@
 name: Sync Specific Odoo Module
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
     inputs:

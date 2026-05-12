@@ -1,0 +1,37 @@
+<odoo>
+    <record id="view_sample_hello_tree" model="ir.ui.view">
+        <field name="name">sample.hello.tree</field>
+        <field name="model">sample.hello</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_sample_hello_form" model="ir.ui.view">
+        <field name="name">sample.hello.form</field>
+        <field name="model">sample.hello</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_sample_hello" model="ir.actions.act_window">
+        <field name="name">Sample Hello</field>
+        <field name="res_model">sample.hello</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_sample_root" name="Sample App"/>
+    <menuitem id="menu_sample_hello"
+              name="Hello Records"
+              parent="menu_sample_root"
+              action="action_sample_hello"/>
+</odoo>

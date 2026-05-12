@@ -1,0 +1,40 @@
+name: Sync Specific Odoo Module
+
+on:
+  workflow_dispatch:
+    inputs:
+      module_name:
+        description: 'Odoo module name'
+        required: true
+
+jobs:
+  sync-module:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Deploy Repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Clone Developer Repo
+        run: |
+          git clone https://github.com/Raghavendra-prixgen/new-test-.git upstream
+
+      - name: Copy Selected Module
+        run: |
+          rm -rf ${{ github.event.inputs.module_name }}
+          cp -r upstream/${{ github.event.inputs.module_name }} ./
+
+      - name: Commit Changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add .
+
+          git commit -m "Updated module: ${{ github.event.inputs.module_name }}" || echo "No changes"
+
+      - name: Push Changes
+        run: |
+          git push origin main

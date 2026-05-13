@@ -1,0 +1,125 @@
+name: Sync or Add Path From Developer Repo
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo_url:
+        description: 'Developer repository URL'
+        required: true
+
+      branch_name:
+        description: 'Source branch name'
+        required: false
+        default: 'main'
+
+      path_name:
+        description: 'File or folder path (module or file)'
+        required: true
+
+# Prevent simultaneous runs
+concurrency:
+  group: sync-path
+  cancel-in-progress: false
+
+jobs:
+  sync-path:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout deploy repo
+      - name: Checkout Deploy Repo
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      # 2. Sync deploy repo
+      - name: Sync Deploy Repo
+        run: |
+          git checkout main
+          git fetch origin main
+          git rebase origin/main
+
+      # 3. Validate inputs
+      - name: Validate Inputs
+        run: |
+          if [ -z "${{ github.event.inputs.repo_url }}" ]; then
+            echo "repo_url is required"
+            exit 1
+          fi
+
+          if [ -z "${{ github.event.inputs.path_name }}" ]; then
+            echo "path_name is required"
+            exit 1
+          fi
+
+      # 4. Add upstream repo
+      - name: Add Upstream Repo
+        run: |
+          git remote add upstream ${{ github.event.inputs.repo_url }}
+
+      # 5. Fetch upstream branch
+      - name: Fetch Upstream Branch
+        run: |
+          git fetch upstream ${{ github.event.inputs.branch_name }}
+
+      # 6. Verify path exists in upstream
+      - name: Verify Path Exists
+        run: |
+          if ! git cat-file -e upstream/${{ github.event.inputs.branch_name }}:${{ github.event.inputs.path_name }}; then
+            echo "Path does not exist in upstream repo!"
+            exit 1
+          fi
+
+      # 7. Remove local version (clean sync)
+      - name: Clean Local Path
+        run: |
+          rm -rf "${{ github.event.inputs.path_name }}"
+
+      # 8. Checkout from upstream (works for both file & folder)
+      - name: Sync Path
+        run: |
+          echo "Syncing path: ${{ github.event.inputs.path_name }}"
+
+          git checkout upstream/${{ github.event.inputs.branch_name }} -- \
+          "${{ github.event.inputs.path_name }}"
+
+      # 9. Commit changes
+      - name: Commit Changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add "${{ github.event.inputs.path_name }}"
+
+          if git diff --cached --quiet; then
+            echo "No changes detected"
+            exit 0
+          fi
+
+          git commit -m "Synced/Added path: ${{ github.event.inputs.path_name }} from ${{ github.event.inputs.repo_url }}"
+
+      # 10. Push safely with retry
+      - name: Push Changes
+        run: |
+          branch="main"
+
+          for i in 1 2 3; do
+            echo "Push attempt $i"
+
+            git fetch origin $branch
+            git rebase origin/$branch
+
+            if git push origin HEAD:$branch; then
+              echo "Push successful"
+              exit 0
+            fi
+
+            echo "Push failed, retrying..."
+            sleep 5
+          done
+
+          echo "Push failed after 3 attempts"
+          exit 1

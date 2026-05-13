@@ -1,0 +1,933 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="amardeep_tax_invoice_page_format" model="report.paperformat">
+            <field name="name">Amardeep Tax Invoice page format</field>
+            <field name="default" eval="True" />
+            <field name="format">A4</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">80</field>
+            <field name="margin_bottom">15</field>
+            <field name="margin_left">5</field>
+            <field name="margin_right">5</field>
+            <field name="header_line" eval="False" />
+            <field name="header_spacing">72</field>
+            <field name="dpi">91</field>
+        </record>
+
+        <record id="amardeep_tax_invoice_report" model="ir.actions.report">
+            <field name="name">Tax Invoice</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">tax_invoice_pdf_report.tax_invoice_report</field>
+            <field name="report_file">tax_invoice_pdf_report.tax_invoice_report</field>
+            <field name="print_report_name">(object.name)</field>
+            <field name="binding_model_id" ref="account.model_account_move" />
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="amardeep_tax_invoice_page_format" />
+        </record>
+
+        <template id="tax_invoice_report">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t
+                        t-call="tax_invoice_pdf_report.external_layout_standard_amardeep_tax_invoice_header">
+                        <div class="page">
+                            <table class="table table-sm"
+                                style="width:100%;border:1px solid #143980;border-top:1px solid #143980;width:100%;padding-top:69px; margin-bottom:0;border-color:#143980;backgroud-color:blue">
+
+                                <thead>
+
+                                    <tr class="p-0">
+                                        <td colspan="100%" class="p-0">
+                                            <div class="col-12 d-flex"
+                                                style="font-size: 12px;border:1px solid #143980;border-top:none;border-left:none;">
+                                                <div class="col-4"
+                                                    style="">
+                                                    <div class="col-12 d-flex px-1">
+                                                        <div class="col-5" style="color:#143980;">
+                                                            <span class="fw-bold">Consignee / Buyer</span>
+                                                        </div>
+                                                        <div class="col-1">:</div>
+                                                        <div class="col-6">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 d-flex px-1">
+                                                        <strong>
+                                                            <span
+                                                                style="color:black;font-style: normal;"
+                                                                t-field="doc.partner_id.name" />
+                                                        </strong><br />
+                                                        <span
+                                                            style="color:black;font-style: normal;"
+                                                            t-field="doc.partner_id.street" /> <br />
+                                                        <span
+                                                            style="color:black;font-style: normal;"
+                                                            t-field="doc.partner_id.street2" />         
+                                                        <span
+                                                            style="color:black;font-style: normal;"
+                                                            t-field="doc.partner_id.city" />- <t
+                                                            t-if="doc.partner_id.state_id">
+                                                            <strong>
+                                                                <span
+                                                                    style="color:black;font-style: normal;"
+                                                                    t-field="doc.partner_id.state_id.name" />
+                                                            </strong>
+                                                        </t>
+                                                            <strong>
+                                                            <span
+                                                                style="color:black;font-style: normal;"
+                                                                t-field="doc.partner_id.zip" />
+                                                        </strong>
+                                                            <br />
+                                                        <!-- <t
+                                                            t-if="doc.partner_id.phone">
+                                                            <span
+                                                                style="color:black;font-style: normal;"
+                                                                t-field="doc.partner_id.phone" />, </t> -->
+                                                        <t
+                                                            t-if="doc.partner_id.phone">
+                                                            <span
+                                                                style="color:black;font-style: normal;"
+                                                                t-field="doc.partner_id.phone" />
+                                                            <br />
+                                                        </t>
+
+                                                    </div>
+
+                                                </div>
+                                                <div class="col-4"
+                                                    style="border-left:1px solid #143980;">
+                                                    <div class="col-12 d-flex px-1">
+                                                        <div class="col-5">
+                                                            <span class="fw-bold"
+                                                                style="color:#143980;">Shipping/
+                                                                Delivery</span>
+                                                        </div>
+                                                        <div class="col-1">:</div>
+                                                        <div class="col-6">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 d-flex px-1">
+                                                        <strong>
+                                                            <span
+                                                                style="color:black;font-style: normal;"
+                                                                t-field="doc.partner_shipping_id.name" />
+                                                        </strong><br />
+                                                        <span
+                                                            style="color:black;font-style: normal;"
+                                                            t-field="doc.partner_shipping_id.street" /> <br />
+                                                        <span
+                                                            style="color:black;font-style: normal;"
+                                                            t-field="doc.partner_shipping_id.street2" />
+                                                        <span
+                                                            style="color:black;font-style: normal;"
+                                                            t-field="doc.partner_shipping_id.city" />
+                                                        - <strong>
+                                                            <span
+                                                                style="color:black;font-style: normal;"
+                                                                t-field="doc.partner_shipping_id.state_id.name" />
+                                                        </strong>
+                                                        - <strong>
+                                                            <span
+                                                                style="color:black;font-style: normal;"
+                                                                t-field="doc.partner_shipping_id.zip" />
+                                                        </strong><br />
+                                                            <t
+                                                            t-if="doc.partner_shipping_id.phone">
+                                                            <span
+                                                                style="color:black;font-style: normal;"
+                                                                t-field="doc.partner_shipping_id.phone" />
+                                                        , </t>
+                                                        <!-- <t
+                                                            t-if="doc.partner_shipping_id.phone">
+                                                            <span
+                                                                style="color:black;font-style: normal;"
+                                                                t-field="doc.partner_shipping_id.phone" />
+                                                            <br />
+                                                        </t> -->
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-4"
+                                                    style="border-left:1px solid #143980;">
+                                                    <div class="col-12 d-flex px-1">
+                                                        <div class="col-5">
+                                                            <span class="fw-bold"
+                                                                style="color:#143980;">Purchase
+                                                                Order No</span>
+                                                        </div>
+                                                        <div class="col-1">:</div>
+
+                                                        <div class="col-6">
+                                                            <span
+                                                                style="color:black;font-style: normal;"
+                                                                t-esc="doc.get_po_number(doc)" />
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="col-12 d-flex px-1">
+                                                        <div class="col-5">
+                                                            <span class="fw-bold"
+                                                                style="color:#143980;">Purchase
+                                                                Order Date</span>
+                                                        </div>
+
+                                                        <div class="col-1">:</div>
+                                                        <div class="col-6">
+                                                            <span
+                                                                style="color:black;font-style: normal;"
+                                                                t-esc="doc.get_po_date(doc)" />
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="col-12 d-flex px-1">
+                                                        <div class="col-5">
+                                                            <span class="fw-bold"
+                                                                style="color:#143980;">Dispatch
+                                                                Doc No</span>
+                                                        </div>
+                                                        <div class="col-1">:</div>
+                                                        <div class="col-6">
+                                                            <span
+                                                                style="color:black;font-style: normal;"
+                                                                t-esc="doc.get_dispatch_no(doc)" />
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-12 d-flex px-1">
+                                                        <div class="col-5">
+                                                            <span class="fw-bold"
+                                                                style="color:#143980;">Dispatch
+                                                                Through</span>
+                                                        </div>
+                                                        <div class="col-1">:</div>
+                                                        <div class="col-6">
+                                                            <span
+                                                                style="color:black;font-style: normal;"
+                                                                t-esc="doc.get_dispatch_through(doc)" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 d-flex"
+                                                style="font-size: 12px;border:1px solid #143980;border-top:none;border-left:none;border-bottom:none;">
+                                                <div class="col-4"
+                                                    style="">
+                                                    <div class="col-12 d-flex px-1">
+                                                        <div class="col-5" style="color:#143980;">
+                                                            <span class="fw-bold">State</span>
+                                                        </div>
+                                                        <div class="col-1">:</div>
+                                                        <div class="col-6">
+                                                            <t t-if="doc.partner_id.state_id">
+                                                                <span
+                                                                    style="color:black;font-style: normal;"
+                                                                    t-field="doc.partner_id.state_id.name" />
+                                                                &#160;&#160; </t>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 d-flex px-1">
+                                                        <div class="col-5" style="color:#143980;">
+                                                            <span class="fw-bold">State Code</span>
+                                                        </div>
+                                                        <div class="col-1">:</div>
+                                                        <div class="col-6">
+                                                            <span
+                                                                style="color:black;font-style: normal;"
+                                                                t-field="doc.partner_id.state_id.l10n_in_tin" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 d-flex px-1">
+                                                        <div class="col-5" style="color:#143980;">
+                                                            <span class="fw-bold">GSTIN</span>
+                                                        </div>
+                                                        <div class="col-1">:</div>
+                                                        <div class="col-6">
+                                                            <t t-if="doc.partner_id.vat">
+                                                                <span
+                                                                    style="color:black;font-style: normal;"
+                                                                    t-field="doc.partner_id.vat" />
+                                                            </t>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 d-flex px-1">
+                                                        <div class="col-5" style="color:#143980;">
+                                                            <span class="fw-bold">PAN</span>
+                                                        </div>
+                                                        <div class="col-1">:</div>
+                                                        <div class="col-6">
+                                                            <t
+                                                                t-if="doc.partner_id.l10n_in_pan_entity_id">
+                                                                <span
+                                                                    style="color:black;font-style: normal;"
+                                                                    t-field="doc.partner_id.l10n_in_pan_entity_id" />
+                                                            </t>
+
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                <div class="col-4"
+                                                    style="border-left:1px solid #143980;border">
+                                                    <div class="col-12 d-flex px-1">
+                                                        <div class="col-5" style="color:#143980;">
+                                                            <span class="fw-bold">State</span>
+                                                        </div>
+                                                        <div class="col-1">:</div>
+                                                        <div class="col-6">
+                                                            <span
+                                                                style="color:black;font-style: normal;"
+                                                                t-field="doc.partner_shipping_id.state_id.name" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 d-flex px-1">
+                                                        <div class="col-5" style="color:#143980;">
+                                                            <span class="fw-bold">State Code</span>
+                                                        </div>
+                                                        <div class="col-1">:</div>
+                                                        <div class="col-6">
+                                                            <span
+                                                                style="color:black;font-style: normal;"
+                                                                t-field="doc.partner_shipping_id.state_id.l10n_in_tin" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 d-flex px-1">
+                                                        <div class="col-5" style="color:#143980;">
+                                                            <span class="fw-bold">GSTIN</span>
+                                                        </div>
+                                                        <div class="col-1">:</div>
+                                                        <div class="col-6">
+                                                            <t t-if="doc.partner_shipping_id.vat">
+                                                                <span
+                                                                    style="color:black;font-style: normal;"
+                                                                    t-field="doc.partner_shipping_id.vat" />
+                                                            </t>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 d-flex px-1">
+                                                        <div class="col-5" style="color:#143980;">
+                                                            <span class="fw-bold">PAN</span>
+                                                        </div>
+                                                        <div class="col-1">:</div>
+                                                        <div class="col-6">
+                                                            <t
+                                                                t-if="doc.partner_shipping_id.l10n_in_pan_entity_id">
+                                                                <span
+                                                                    style="color:black;font-style: normal;"
+                                                                    t-field="doc.partner_shipping_id.l10n_in_pan_entity_id" />
+                                                            </t>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4"
+                                                    style="border-left:1px solid #143980;">
+                                                    <div class="col-12 d-flex px-1">
+                                                        <div class="col-5" style="color:#143980;">
+                                                            <span class="fw-bold">Transporter</span>
+                                                        </div>
+                                                        <div class="col-1">:</div>
+                                                        <div class="col-6">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 d-flex px-1">
+                                                        <div class="col-5">
+                                                            <span class="fw-bold"
+                                                                style="color:#143980;">External
+                                                                Vehicle No</span>
+                                                        </div>
+                                                        <div class="col-1">:</div>
+                                                        <div class="col-6">
+                                                            <span
+                                                                style="color:black;font-style: normal;"
+                                                                t-esc="doc.get_vehicle_number(doc)" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr
+                                        style="color:#143980;height:3px !important;font-size:12px;padding-left: 6px;">
+                                        <th class="text-center fw-bold"
+                                            style="color:#143980;padding:1px;width:4%;border:1px solid #143980;">Sl
+                                            No</th>
+                                        <th class="text-center fw-bold"
+                                            style="color:#143980;padding:1px;width:35%;border:1px solid #143980;">Description
+                                            of Goods / Services</th>
+                                        <th class="text-center fw-bold"
+                                            style="color:#143980;padding:1px;width:8%;border:1px solid #143980;">HSN
+                                            /
+                                            SAC</th>
+                                        <th class="text-center fw-bold"
+                                            style="color:#143980;padding:1px;width:10%;border:1px solid #143980;">Tax
+                                            Rate</th>
+                                        <th class="text-center fw-bold"
+                                            style="color:#143980;padding:1px;width:11%;border:1px solid #143980;">
+                                            Quantity</th>
+                                        <th class="text-center fw-bold"
+                                            style="color:#143980;padding:1px;width:12%;border:1px solid #143980;">
+                                            Price/Unit&#160;(<span t-field="doc.currency_id.symbol" />
+                                            )</th>
+                                        <th class="text-center fw-bold"
+                                            style="color:#143980;padding:1px;width:6%;border:1px solid #143980;">
+                                            Disc%</th>
+                                        <th class="text-center fw-bold"
+                                            style="color:#143980;padding:1px;width:10%;border:1px solid #143980;">
+                                            Amount&#160;(<span t-field="doc.currency_id.symbol" />)</th>
+                                    </tr>
+
+                                </thead>
+
+                                <tbody
+                                    style="width:100%;border:1px solid #143980;font-size:12px;padding:0.5rem">
+
+                                    <t t-set="i" t-value="1" />
+
+                                    <t t-foreach="doc.invoice_line_ids" t-as="line">
+                                        <t
+                                            t-if="line.display_type == 'line_section' or line.display_type == 'line_note'">
+                                            <tr>
+                                                <td colspan="8"
+                                                    style="width:100%;padding-left:2px;border:1px solid #143980;border-left:1px solid #143980;font-size:12px;">
+                                                    <span t-field="line.name" />
+                                                </td>
+                                            </tr>
+                                        </t>
+                                        <t t-else="">
+                                            <tr style="height:1px;;page-break-inside:avoid">
+
+                                                <td class="text-center"
+                                                    style="border-left:1px solid #143980;border-bottom:1px solid #143980;padding:0.4rem">
+                                                    <span t-esc="i" />
+                                                    <t t-set="i" t-value="i+1" />
+                                                </td>
+                                                <td class="text-left"
+                                                    style="border-left:1px solid #143980;border-right:1px solid #143980;border-bottom:1px solid
+                                #143980;padding:0.4rem">
+                                                    <span t-field="line.name" />
+                                                </td>
+                                                <td class="text-center"
+                                                    style="border-left:1px solid #143980;border-bottom:1px solid #143980;padding:0.4rem">
+                                                    <span t-field="line.product_id.l10n_in_hsn_code" />
+                                                </td>
+                                                <td class="text-center"
+                                                    style="border-left:1px solid #143980;border-bottom: 1px solid #143980;">
+                                                    <span t-field="line.tax_ids.name" />
+                                                </td>
+                                                <td class="text-center"
+                                                    style="border-left:1px solid #143980;border-bottom:1px solid #143980;padding:0.4rem">
+                                                    <span t-esc="'%.2f'%(line.quantity)" />&#160;<span
+                                                        t-field="line.product_uom_id.name" />
+                                                </td>
+                                                <td class="text-center"
+                                                    style="text-align:right;border-left:1px solid #143980;border-bottom:1px solid
+                                #143980;padding:0.4rem">
+                                                    <span t-field="doc.currency_id.symbol" />
+                                                    <span t-field="line.price_unit" />
+                                                </td>
+                                                <td class="text-center"
+                                                    style="text-align:right;border-left:1px solid #143980;border-bottom:1px solid
+                                #143980;padding:0.4rem">
+                                                    <span t-esc="'%.2f'%(line.discount)" />
+                                                </td>
+
+                                                <td class="text-right"
+                                                    style="text-align:right;border-left:1px solid #143980;border-right:1px solid
+                                #143980;border-bottom:1px solid #143980;padding:0.4rem">
+                                                    <span t-field="doc.currency_id.symbol" />
+                                                    <span t-esc="line.price_subtotal"
+                                                        t-options="{'widget':'float', 'precision':2}" />
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </tbody>
+                                <tbody
+                                    style="width:100%;border:1px solid #143980;font-size:12px;padding:0.5rem">
+                                    <tr style="height:3px !important;font-size:12px;">
+                                        <td colspan="6" class="text-right"
+                                            style="padding:1px;border:1px solid #143980;border-top:1px solid #143980;font-size:12px;">
+
+                                        </td>
+
+                                        <td class="text-left"
+                                            style="padding:1px;border:1px solid #143980;">
+                                            <strong style="color:#143980">TOTAL</strong>
+                                        </td>
+                                        <td class="text-right"
+                                            style="padding:1px;border:1px solid #143980;text-align:right">
+                                            <span
+                                                t-esc="sum(line.price_subtotal for line in doc.invoice_line_ids)"
+                                                t-options="{'widget': 'float', 'precision': 2}" />
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+
+
+                            <table class="table table-sm-borderless m-0 p-0"
+                                style="border:1px #143980;width:100%;border-color:#143980;">
+                                <thead style="border-top:none;border:1px #143980;">
+
+                                    <tr>
+                                        <th rowspan="2" class="text-center"
+                                            style="font-size:12px;padding:1px;border:1px solid #143980;">
+                                            <strong style="color:#143980">HSN/SAC</strong>
+                                        </th>
+                                        <th rowspan="2" class="text-center"
+                                            style="font-size:12px;padding:1px;border:1px solid #143980;">
+                                            <strong style="color:#143980">Taxable Value</strong>
+                                        </th>
+                                        <th colspan="2" class="text-center"
+                                            style="font-size:12px;padding:1px;border:1px solid #143980;">
+                                            <strong style="color:#143980">SGST</strong>
+                                        </th>
+                                        <th colspan="2" class="text-center"
+                                            style="font-size:12px;padding:1px;border:1px solid #143980;">
+                                            <strong style="color:#143980">CGST</strong>
+                                        </th>
+                                        <th colspan="2" class="text-center"
+                                            style="font-size:12px;padding:1px;border:1px solid #143980;">
+                                            <strong style="color:#143980">IGST</strong>
+                                        </th>
+                                        <th colspan="2" class="text-center"
+                                            style="font-size:12px;padding:1px;border:1px solid #143980;">
+                                            <strong style="color:#143980">CESS</strong>
+                                        </th>
+
+                                        <th colspan="3" rowspan="2" class="text-center"
+                                            style="font-size:12px;padding:1px;border:1px solid #143980;">
+                                            <strong style="color:#143980">Total Tax Amount</strong>
+                                        </th>
+                                    </tr>
+
+                                    <tr>
+                                        <th class="text-center"
+                                            style="font-size:12px;padding:1px;border:1px solid #143980;">
+                                            <strong style="color:#143980">Rate</strong>
+                                        </th>
+                                        <th class="text-center"
+                                            style="font-size:12px;padding:1px;border:1px solid #143980;">
+                                            <strong style="color:#143980">Amount</strong>
+                                        </th>
+                                        <th class="text-center"
+                                            style="font-size:12px;padding:1px;border:1px solid #143980;">
+                                            <strong style="color:#143980">Rate</strong>
+                                        </th>
+                                        <th class="text-center"
+                                            style="font-size:12px;padding:1px;border:1px solid #143980;">
+                                            <strong style="color:#143980">Amount</strong>
+                                        </th>
+
+                                        <th class="text-center"
+                                            style="font-size:12px;padding:1px;border:1px solid #143980;">
+                                            <strong style="color:#143980">Rate</strong>
+                                        </th>
+                                        <th class="text-center"
+                                            style="font-size:12px;padding:1px;border:1px solid #143980;">
+                                            <strong style="color:#143980">Amount</strong>
+                                        </th>
+                                        <th class="text-center"
+                                            style="font-size:12px;padding:1px;border:1px solid #143980;">
+                                            <strong style="color:#143980">Rate</strong>
+                                        </th>
+                                        <th class="text-center"
+                                            style="font-size:12px;padding:1px;border:1px solid #143980;">
+                                            <strong style="color:#143980">Amount</strong>
+                                        </th>
+
+                                    </tr>
+                                </thead>
+
+                                <tbody style="border-top:none;">
+                                    <t t-set="cgst_amount" t-value="0.0" />
+                                    <t t-set="sgst_amount" t-value="0.0" />
+                                    <t t-set="igst_amount" t-value="0.0" />
+                                    <t t-set="cess_amount" t-value="0.0" />
+                                    <t t-set="tds_amount" t-value="0.0" />
+                                    <t t-set="tcs_amount" t-value="0.0" />
+                                    <t t-set="total_amount" t-value="0.0" />
+                                    <t t-set="amount_total" t-value="0.0" />
+
+                                    <t t-set="taxes_line" t-value="doc.tax_calculation()" />
+                                    <t t-foreach="taxes_line['taxes']" t-as="tax">
+                                        <tr style="page-break-inside:avoid;">
+                                            <td class="text-center"
+                                                style="padding:1px;font-size:12px !important;width:10%;border:1px solid  black;">
+                                                <span t-if="tax['hsn_code']" t-esc="tax['hsn_code']" />
+                                            </td>
+                                            <td colspan="1" class="text-center"
+                                                style="padding:1px;font-size:12px !important;width:10%;border:1px solid black;">
+                                                <!-- <t t-set="parent_tax_amount"
+                                                t-value="tax['parent_tax_amount']"/> -->
+                                                <span t-set="parent_tax_amount"
+                                                    t-value="'{:,.2f}'.format(tax['parent_tax_amount'])" />
+                                                <span t-esc="parent_tax_amount" />
+
+                                            </td>
+                                            <td class="text-center"
+                                                style="padding:1px;font-size:12px !important;width:7%;border:1px solid  black;">
+                                                <t t-foreach="tax['child_taxes']" t-as="child_tax">
+                                                    <t t-if="child_tax['tax_group'] == 'CGST'">
+                                                        <span t-esc="child_tax['rate']"
+                                                            t-options="{'widget': 'float', 'precision': 2}" />
+                                                        <span> %</span>
+                                                    </t>
+                                                </t>
+                                            </td>
+                                            <td class="text-center"
+                                                style="padding:1px;font-size:12px !important;width:9%;border:1px solid  black;">
+                                                <t t-foreach="tax['child_taxes']" t-as="child_tax">
+                                                    <t t-if="child_tax['tax_group'] == 'CGST'">
+                                                        <span style="text-align:right"
+                                                            t-field="doc.currency_id.symbol" />
+
+                                                        <span t-esc="child_tax['amount']"
+                                                            t-options="{'widget': 'float', 'precision': 2}" />
+                                                    </t>
+                                                </t>
+                                            </td>
+                                            <td class="text-center"
+                                                style="padding:1px;font-size:12px !important;width:7%;border:1px solid  black;">
+                                                <t t-foreach="tax['child_taxes']" t-as="child_tax">
+                                                    <t t-if="child_tax['tax_group'] == 'SGST'">
+                                                        <span t-esc="child_tax['rate']"
+                                                            t-options="{'widget': 'float', 'precision': 2}" />
+                                                        <span> %</span>
+                                                    </t>
+                                                </t>
+                                            </td>
+                                            <td class="text-center"
+                                                style="padding:1px;font-size:12px !important;width:9%;border:1px solid  black;">
+                                                <t t-foreach="tax['child_taxes']" t-as="child_tax">
+                                                    <t t-if="child_tax['tax_group'] == 'SGST'">
+                                                        <span style="text-align:right"
+                                                            t-field="doc.currency_id.symbol" />
+
+                                                        <span t-esc="child_tax['amount']"
+                                                            t-options="{'widget': 'float', 'precision': 2}" />
+                                                    </t>
+                                                </t>
+                                            </td>
+                                            <td class="text-center"
+                                                style="padding:1px;font-size:12px !important;width:7%;border:1px solid  black;">
+                                                <t t-foreach="tax['child_taxes']" t-as="child_tax">
+                                                    <t t-if="child_tax['tax_group'] == 'IGST'">
+                                                        <span t-esc="child_tax['rate']"
+                                                            t-options="{'widget': 'float', 'precision': 2}" />
+                                                        <span> %</span>
+                                                    </t>
+                                                </t>
+                                            </td>
+                                            <td class="text-center"
+                                                style="padding:1px;font-size:12px !important;width:9%;border:1px solid  black;">
+
+                                                <t t-foreach="tax['child_taxes']" t-as="child_tax">
+                                                    <t t-if="child_tax['tax_group'] == 'IGST'">
+                                                        <t t-set="igst_amount_val"
+                                                            t-value="child_tax['amount']" />
+                                                        <t t-set="igst_amount"
+                                                            t-value="igst_amount+igst_amount_val" />
+                                                        <span style="text-align:right"
+                                                            t-field="doc.currency_id.symbol" />
+                                                        <span t-esc="igst_amount"
+                                                            t-options="{'widget': 'float', 'precision': 2}" />
+                                                    </t>
+                                                </t>
+                                            </td>
+                                            <td class="text-center"
+                                                style="padding:1px;font-size:12px !important;width:7%;border:1px solid  black;">
+                                                <t t-foreach="tax['child_taxes']" t-as="child_tax">
+                                                    <t t-if="child_tax['tax_group'] == 'CESS'">
+                                                        <span t-esc="child_tax['rate']" />
+                                                        <span> %</span>
+                                                    </t>
+                                                </t>
+                                            </td>
+                                            <td class="text-center"
+                                                style="padding:1px;font-size:12px !important;width:9%;border:1px solid  black;">
+                                                <t t-set="cess_amount" t-value="0.0" />
+                                                <t t-foreach="tax['child_taxes']" t-as="child_tax">
+                                                    <t t-if="child_tax['tax_group'] == 'CESS'">
+                                                        <t t-set="cess_amount_val"
+                                                            t-value="child_tax['amount']" />
+                                                        <t t-set="cess_amount"
+                                                            t-value="cess_amount + cess_amount_val" />
+                                                    </t>
+                                                </t>
+                                                <t t-if="cess_amount != 0.0">
+                                                    <span style="text-align:right"
+                                                        t-field="doc.currency_id.symbol" />
+                                                    <span t-esc="cess_amount"
+                                                        t-options="{'widget': 'float', 'precision': 2}" />
+                                                </t>
+                                                <t t-else="">
+                                                </t>
+                                            </td>
+                                            <t t-if="yes_tds">
+                                                <td class="text-center"
+                                                    style="padding:1px;font-size:12px !important;width:7%;border:1px solid  black;">
+                                                    <t t-foreach="tax['child_taxes']"
+                                                        t-as="child_tax">
+                                                        <t t-if="child_tax['tax_group'] == 'TDS'">
+                                                            <span t-esc="child_tax['rate']"
+                                                                t-options="{'widget': 'float', 'precision': 2}" />
+                                                            <span> %</span>
+                                                        </t>
+                                                    </t>
+                                                </td>
+                                                <td class="text-center"
+                                                    style="padding:1px;font-size:12px !important;width:9%;border:1px solid  black;">
+                                                    <t t-foreach="tax['child_taxes']"
+                                                        t-as="child_tax">
+                                                        <t t-if="child_tax['tax_group'] == 'TDS'">
+                                                            <t t-set="tds_amount_val"
+                                                                t-value="child_tax['amount']" />
+                                                            <t t-set="tds_amount"
+                                                                t-value="tds_amount+tds_amount_val" />
+                                                            <span style="text-align:right"
+                                                                t-field="doc.currency_id.symbol" />
+
+                                                            <span t-esc="tds_amount"
+                                                                t-options="{'widget': 'float', 'precision': 2}" />
+
+                                                        </t>
+                                                    </t>
+                                                </td>
+                                            </t>
+                                            <t t-elif="yes_tcs">
+                                                <td class="text-center"
+                                                    style="padding:1px;font-size:12px !important;width:7%;border:1px solid  black;">
+                                                    <t t-foreach="tax['child_taxes']"
+                                                        t-as="child_tax">
+                                                        <t t-if="child_tax['tax_group'] == 'TCS'">
+                                                            <span t-esc="child_tax['rate']"
+                                                                t-options="{'widget': 'float', 'precision': 2}" />
+                                                            <span> %</span>
+                                                        </t>
+                                                    </t>
+                                                </td>
+                                                <td class="text-center"
+                                                    style="padding:1px;font-size:12px !important;width:9%;border:1px solid  black;">
+                                                    <t t-foreach="tax['child_taxes']"
+                                                        t-as="child_tax">
+                                                        <t t-if="child_tax['tax_group'] == 'TCS'">
+                                                            <t t-set="tcs_amount_val"
+                                                                t-value="child_tax['amount']" />
+                                                            <t t-set="tcs_amount"
+                                                                t-value="tcs_amount+tcs_amount_val" />
+                                                            <span style="text-align:right"
+                                                                t-field="doc.currency_id.symbol" />
+                                                            <span t-esc="tcs_amount"
+                                                                t-options="{'widget': 'float', 'precision': 2}" />
+                                                        </t>
+                                                    </t>
+                                                </td>
+                                            </t>
+                                            <td
+                                                style="text-align:right;padding:0.4rem;font-size:12px !important;width:13%;border:1px solid  black;">
+
+                                                <t t-foreach="tax['child_taxes']" t-as="child_tax">
+                                                    <t t-if="child_tax['tax_group'] == 'IGST'">
+                                                        <t t-set="igst_amount_val"
+                                                            t-value="child_tax['amount']" />
+                                                        <t t-set="igst_amount" t-value="igst_amount" />
+                                                        <span style="text-align:right"
+                                                            t-field="doc.currency_id.symbol" />
+                                                        <span t-esc="igst_amount"
+                                                            t-options="{'widget': 'float', 'precision': 2}" />
+                                                    </t>
+                                                </t>
+                                                <t t-foreach="tax['child_taxes']" t-as="child_tax">
+                                                    <t t-if="child_tax['tax_group'] == 'CGST'">
+                                                        <span style="text-align:right"
+                                                            t-field="doc.currency_id.symbol" />
+                                                        <span t-esc="child_tax['amount']*2"
+                                                            t-options="{'widget': 'float', 'precision': 2}" />
+                                                    </t>
+                                                </t>
+                                                <t t-foreach="tax['child_taxes']" t-as="child_tax">
+                                                    <t t-if="child_tax['tax_group'] == 'TCS'">
+                                                        <t t-set="tcs_amount_val"
+                                                            t-value="child_tax['amount']" />
+                                                        <t t-set="tcs_amount" t-value="tcs_amount" />
+                                                        <span style="text-align:right"
+                                                            t-field="doc.currency_id.symbol" />
+                                                        <span t-esc="tcs_amount"
+                                                            t-options="{'widget': 'float', 'precision': 2}" />
+                                                    </t>
+                                                </t>
+                                                <t t-foreach="tax['child_taxes']" t-as="child_tax">
+                                                    <t t-if="child_tax['tax_group'] == 'TDS'">
+                                                        <t t-set="tds_amount_val"
+                                                            t-value="child_tax['amount']" />
+                                                        <t t-set="tds_amount" t-value="tds_amount" />
+                                                        <span style="text-align:right"
+                                                            t-field="doc.currency_id.symbol" />
+                                                        <span t-esc="tds_amount"
+                                                            t-options="{'widget': 'float', 'precision': 2}" />
+
+                                                    </t>
+                                                </t>
+                                                <t t-set="cess_amount" t-value="0.0" />
+                                                <t t-foreach="tax['child_taxes']" t-as="child_tax">
+                                                    <t t-if="child_tax['tax_group'] == 'CESS'">
+                                                        <t t-set="cess_amount_val"
+                                                            t-value="child_tax['amount']" />
+                                                        <t t-set="cess_amount"
+                                                            t-value="cess_amount + cess_amount_val" />
+                                                    </t>
+                                                </t>
+                                                <t t-if="cess_amount != 0.0">
+                                                    <span style="text-align:right"
+                                                        t-field="doc.currency_id.symbol" />
+                                                    <span t-esc="cess_amount"
+                                                        t-options="{'widget': 'float', 'precision': 2}" />
+                                                </t>
+                                                <t t-else="">
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </t>
+
+                                    <tr
+                                        style="width:100%;height:5px !important;page-break-inside:avoid;text-align:right">
+
+                                        <td colspan="10"
+                                            style="border:1px solid #143980;font-color:#143980;width:85%;padding:1px;font-size:13px
+                                !important;">
+                                            <strong style="text-align:right;color:#143980">Total Tax</strong>
+                                        </td>
+
+                                        <td colspan="2" class="text-align:right"
+                                            style="padding:0.4rem;font-size:13px !important;width:15%;border:1px solid #143980;">
+                                            <span class="fw-bold" style="text-align:right"
+                                                t-field="doc.currency_id.symbol" />
+                                            <span class="fw-bold" style="text-align:right"
+                                                t-esc="doc.amount_tax "
+                                                t-options="{'widget':'float', 'precision':2}" />
+                                        </td>
+                                    </tr>
+                                    <tr
+                                        style="width:100%;height:5px !important;page-break-inside:avoid;text-align:right">
+                                        <td colspan="10"
+                                            style="border:1px solid #143980;font-color:#143980;width:85%;padding:1px;font-size:13px
+                                !important;">
+                                            <strong style="text-align:right;color:#143980">Grand
+                                                Total</strong>
+                                        </td>
+
+                                        <td colspan="2" class="text-align:right"
+                                            style="padding:0.4rem;font-size:13px !important;width:15%;border:1px solid #143980;">
+                                            <span class="fw-bold" style="text-align:right"
+                                                t-field="doc.currency_id.symbol" />
+                                            <span class="fw-bold" style="text-align:right"
+                                                t-if="doc.amount_total" t-esc="doc.amount_total"
+                                                t-options="{'widget':'float', 'precision':2}" />
+                                        </td>
+
+                                    </tr>
+
+                                    <tr style="page-break-inside:avoid;">
+                                        <td colspan="12"
+                                            style="font-size:12px;padding:1px;border:1px solid #143980;width:100%">
+                                            <strong>
+                                                <span style="color:#143980">Amount Chargeable (in
+                                            words)</span>
+                                            </strong>
+                                            &#160; : &#160; 
+                                               
+                                            <span style="color:#000000;"
+                                                t-esc="doc.currency_id.with_context(lang='en_IN').amount_to_text(doc.amount_total) + ' Only'" />
+                                        
+                                        </td>
+
+
+                                    </tr>
+                                </tbody>
+
+                            </table>
+
+                            <table class="table table-borderless m-0 p-0"
+                                style="border:1px solid #143980;width:100%;border-color:#143980;page-break-inside: avoid;">
+                                <tr>
+                                    <td colspan="16"
+                                        style="font-size:12px;padding:1px;border:1px solid #143980;color:#143980">
+                                        <b>Interest at 25% will be charged on all accounts due over
+                                            one
+                                            month after date of bill. Our responsibility ceases once
+                                            goods leave our factory.</b>
+                                    </td>
+                                </tr>
+                                <tr style="height:1px !important;">
+                                    <td colspan="5"
+                                        style="font-size:12px;padding:1px;border:1px solid #143980;color:#143980;width:40%;">
+                                        <b>Certified that the particulars given above are true and
+                                            correct and the amount indicated represents the price
+                                            actually charged and that there is no flow of additional
+                                            consideration directly or indirectly from the buyer.</b>
+                                    </td>
+
+                                    <td colspan="5"
+                                        style="font-size:12px;padding:1px;border:1px solid #143980;width:30%;">
+                                        <div class="row">
+                                            <div>
+                                                <strong style="font-size:12px;color:#143980;">BANK
+                                                    NAME :</strong>
+                                                <span
+                                                    t-esc="doc.company_id.partner_id.bank_ids[:1].bank_id.name" />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div>
+                                                <strong style="color:#143980;">ACCOUNT No :</strong>
+                                                <span
+                                                    t-esc="doc.company_id.partner_id.bank_ids[:1].acc_number" />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div>
+                                                <strong style="color:#143980;">IFSC Code :</strong>
+                                                <span
+                                                    t-esc="doc.company_id.partner_id.bank_ids[:1].bank_id.bic" />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div>
+                                                <strong style="color:#143980;">SWIFT Code :</strong>
+                                                <span
+                                                    t-esc="doc.company_id.partner_id.bank_ids[:1].bank_id.y_swift_code" />
+                                            </div>
+                                        </div>
+
+                                    </td>
+                                    <td colspan="6" class="text-center"
+                                        style="font-size:12px;padding:1px;border:1px solid #143980;width:30%;text-transform:none;">
+                                        <t t-set="company" t-value="doc.company_id.parent_id or doc.company_id"/>
+
+                                        <span style="font-weight:700">for&#160;&#160;</span>
+                                                <span t-esc="company.name" style="text-transform: none !important;"/>
+
+                                        <div style="font-size:12px;padding:15px" />
+                                        <span>Authorized Signatory</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+
+        <template id="external_layout_standard_amardeep_tax_invoice_header">
+            <div class="header">
+
+                <div class="row">
+                    <div class="col-4" style="text-align:left">
+                    </div>
+
+                    <div class="col-4" style="text-align:center">
+                        <strong style="font-size:16px;color:#143980;">TAX-INVOICE</strong>
+                        <br />
+                        <strong style="color:#143980;font-size:11px;">Rule 46 u/r CGST &amp; SGST </strong>
+                    </div>
+
+                    <div class="col-4" style="text-align:right">
+                        <strong>
+                            <span style="padding-left:9%;font-size:12px;">ORIGINAL FOR RECIPIENT</span>
+                        </strong>
+                        <br />
+
+                    </div>
+                </div>
+
+
+                <table class="table" style="border:1px solid #143980;width:100%;">
+
+
+                    <tr style="border:1px solid #14 3980;font-size:13px;">
+                        <td style="padding:0;"></td>
+
+                        <!-- LEFT: QR CODE -->
+                        <div class="row" style="border:1px solid #143980">
+                            <div
+                                style="width:18.2%;border-right:1px solid #143980;padding:1%;padding-top:2%;">
+                                <img t-attf-src="data:image/*;base64,{{doc.display_qr_code}}"
+                                    style="width:140px;height:140px" />
+                            </div>
+
+                            <!-- company name  -->
+                            <div
+                                style="width:58%;text-align:center;border-right:1px solid #143980;padding-top:2%;">
+
+                                <t t-set="company" t-value="doc.company_id.parent_id or doc.company_id" />
+
+
+                                <div style="font-size:20px;font-weight:bold;color:#000000;text-transform:none;">
+                                    <strong>
+                                        <span t-field="company.name" />
+                                    </strong>
+                                </div>
+
+
+                                <br />
+
+                            </div>
+
+                            <!-- RIGHT: LOGO + INVOICE DETAILS -->
+                            <div style="width:24%;padding-left:1%;" class="m-0 p-0">
+
+                                <div>
+                                    <img
+                                        t-if="doc.company_id.parent_id.logo"
+                                        t-att-src="image_data_uri(doc.company_id.parent_id.logo)"
+                                        style="max-width: 150px; max-height: 60px; width: auto; height:
+                                            auto; padding-left:16px;padding-top:8px;"
+                                        alt="Logo" />
+                                    <t
+                                        t-if="doc.company_id.logo">
+                                        <img
+                                            t-att-src="image_data_uri(doc.company_id.logo)"
+                                            style="max-width: 150px; max-height: 80px; width: auto; height: auto; padding-right: 12px;border-left:2px solid #143980;"
+                                            alt="Logo" />
+                                    </t>
+
+                                </div>
+
+                                <br />
+                                <div
+                                    style="border-top:1px solid #143980;padding-top:5%;padding-left:3%">
+                                    <strong style="color:#143980;font-size:12px;padding:1px;">Invoice
+                                        No&#160;:</strong>
+                                    <span style="font-size:12px;" t-field="doc.name" />
+                                    <br />
+                                    <strong style="color:#143980;font-size:12px;padding:1px;">Invoice
+                                        Date&#160;:</strong>
+                                    <t t-if="doc.invoice_date">
+                                        <span style="font-size:12px; !important"
+                                            t-esc="doc.invoice_date" />
+                                    </t>
+                                    <br />
+                                    <strong style="color:#143980;font-size:12px;padding:1px;">LUT/Bond
+                                        No&#160;:</strong>
+                                    <span
+                                        style="color:black;font-size:12px;font-style: normal;"
+                                        t-esc="doc.get_lutbond_number(doc)" />
+                                </div>
+                                <br />
+                            </div>
+                        </div>
+
+                    </tr>
+
+
+                    <tr>
+                        <td colspan="4"
+                            style="padding:1px;padding:3px;color:#143980;white-space: nowrap;border-bottom:1px solid #143980;border-right:1px solid #143980">
+                            <div class="row">
+                                <div class="col-3" style="font-size:10px;">
+                                    <strong>GSTIN:</strong>
+
+                                     <strong>
+                                        <span t-field="doc.company_id.parent_id.partner_id.vat" />
+
+                                    </strong>
+
+                                </div>
+                                <div class="col-3" style="font-size:10px;">
+                                    <strong>PAN</strong>
+
+                                  <strong>
+
+                                        <span
+                                            t-field="doc.company_id.parent_id.partner_id.l10n_in_pan_entity_id" />
+
+                                    </strong>
+  
+
+                                </div>
+                                <div class="col-3" style="font-size:10px;">
+                                    <strong>MSME CODE</strong>
+
+                                <strong>
+                                        <t t-if="doc.company_id.parent_id.y_msme_code">
+                                            <span t-field="doc.company_id.parent_id.y_msme_code" />
+                                        </t>
+                                    </strong>
+
+                                </div>
+                                <div class="col-1" style="font-size:10px;">
+                                    <strong>STATE</strong>
+
+                                    <strong>
+                                        <span t-field="doc.company_id.parent_id.partner_id.state_id" />
+
+                                    </strong>
+
+                                </div>
+
+                            </div>
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td colspan="4"
+                            style="padding:1px;padding:3px;color:#143980;white-space: nowrap;border-right:1px solid #143980">
+                            <div class="row">
+                                <div class="col-7" style="font-size:10px;">
+                                    <strong><t t-esc="'IRN No'" />:</strong>
+                                </div>
+
+                                <div class="col-2" style="font-size:10px;">
+
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="col-4" style="font-size:10px;">
+                                    <strong><t t-esc="'Acknowledgement No'" />:</strong>
+                                </div>
+                                <div class="col-3" style="font-size:10px;">
+
+                                </div>
+                                <div class="col-2" style="font-size:10px;">
+
+                                </div>
+                                <div class="col-2" style="font-size:10px;">
+                            </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4" style="font-size:10px;">
+                                    <strong><t t-esc="'Acknowledgement Date'" />:</strong>
+                                </div>
+                                <div class="col-3" style="font-size:10px;">
+                            </div>
+                                <div class="col-2" style="font-size:10px;">
+
+                                </div>
+                                <div class="col-2" style="font-size:10px;">
+
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+
+            <div class="article o_report_layout_standard" t-att-data-oe-model="doc and doc._name"
+                t-att-data-oe-id="doc and doc.id"
+                t-att-data-oe-lang="doc and doc.env.context.get('lang')">
+                <t t-call="web.address_layout" />
+                <t t-raw="0" />
+            </div>
+            
+            <div class="footer o_standard_footer" style="margin-top:0">
+
+                <div style="text-align:center;padding:1px;margin-top:none !important;">
+                    <strong>
+                       <span style="color:#000066;font-size:13px;">Registered Address</span>: <span
+                            style="color:#143980;font-size:11px;"
+                            t-if="doc.company_id.parent_id or doc.company_id.name"
+                            t-field="doc.company_id.parent_id or doc.company_id.name" />
+
+                            <span style="color:#143980;font-size:11px;"
+                            t-if="doc.company_id.parent_id or doc.company_id.partner_id.street"
+                            t-field="doc.company_id.parent_id or doc.company_id.partner_id.street" />
+
+                        <span
+                            style="color:#143980;font-size:11px;"
+                            t-if="doc.company_id.parent_id or doc.company_id.partner_id.street2"
+                            t-field="doc.company_id.parent_id or doc.company_id.partner_id.street2" />
+
+                         <span
+                            style="color:#143980;font-size:11px;"
+                            t-if="doc.company_id.parent_id or doc.company_id.partner_id.city"
+                            t-field="doc.company_id.parent_id or doc.company_id.partner_id.city" />
+
+                        <span
+                            style="color:#143980;font-size:11px;"
+                            t-if="doc.company_id.parent_id or doc.company_id.partner_id.zip"
+                            t-field="doc.company_id.parent_id or doc.company_id.partner_id.zip" />
+
+                        <span
+                            style="color:#143980;font-size:11px;"
+                            t-if="doc.company_id.parent_id or doc.company_id.partner_id.state_id"
+                            t-field="doc.company_id.parent_id or doc.company_id.partner_id.state_id" />
+
+                        <span
+                            style="color:#143980;font-size:11px;"
+                            t-if="doc.company_id.parent_id or doc.company_id.partner_id.country_id"
+                            t-field="doc.company_id.parent_id or doc.company_id.partner_id.country_id" />
+                    </strong>
+                </div>
+
+
+                <div class="fw-bold"
+                    style="text-align:center;padding:4px;margin-top:none !important;">
+
+                    <p style="font-size:11px;float:center;color:#143980;" class="text-muted"> Page: <span
+                            class="page" /> of <span class="topage" />
+                    </p>
+                </div>
+
+            </div>
+        </template>
+    </data>
+</odoo>
+
+        

@@ -1,4 +1,4 @@
-name: Sync Specific Odoo Module
+name: Sync Specific Odoo Module dynamically
 
 permissions:
   contents: write

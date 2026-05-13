@@ -5,3 +5,6 @@ class SampleHello(models.Model):
     _description = 'Sample Hello Model'
 
     name = fields.Char(string='Name', required=True)
+
+
+    THIS IS FOR TESTING

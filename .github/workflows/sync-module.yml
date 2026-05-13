@@ -10,7 +10,7 @@ on:
         description: 'Odoo module name'
         required: true
 
-# Prevent multiple workflow runs at same time
+# Prevent simultaneous pushes
 concurrency:
   group: sync-module
   cancel-in-progress: false
@@ -26,35 +26,34 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 2. Sync latest remote main
+      # 2. Sync latest deploy repo state
       - name: Sync with Remote Main
         run: |
           git fetch origin main
           git reset --hard origin/main
 
-      # 3. Clone developer repo
-      - name: Clone Developer Repo
+      # 3. Add developer repo as upstream
+      - name: Add Upstream Repo
         run: |
-          git clone https://github.com/Raghavendra-prixgen/new-test-.git upstream
+          git remote add upstream https://github.com/Raghavendra-prixgen/new-test-.git
 
-      # 4. Verify module exists
+      # 4. Fetch upstream repo
+      - name: Fetch Upstream
+        run: |
+          git fetch upstream
+
+      # 5. Verify module exists in upstream
       - name: Verify Module Exists
         run: |
-          if [ ! -d "upstream/${{ github.event.inputs.module_name }}" ]; then
-            echo "Module does not exist!"
+          if ! git ls-tree -d upstream/main -- "${{ github.event.inputs.module_name }}" | grep "${{ github.event.inputs.module_name }}"; then
+            echo "Module does not exist in upstream repo!"
             exit 1
           fi
 
-      # 5. Copy selected module
-      - name: Copy Selected Module
+      # 6. Pull only selected module from upstream
+      - name: Sync Selected Module
         run: |
-          rm -rf ${{ github.event.inputs.module_name }}
-          cp -r upstream/${{ github.event.inputs.module_name }} ./
-
-      # 6. Cleanup upstream repo
-      - name: Remove Upstream Repo
-        run: |
-          rm -rf upstream
+          git checkout upstream/main -- ${{ github.event.inputs.module_name }}
 
       # 7. Commit changes
       - name: Commit Changes

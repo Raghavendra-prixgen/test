@@ -1,0 +1,125 @@
+name: Sync Specific Odoo Module
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo_url:
+        description: 'Developer repository URL'
+        required: true
+
+      branch_name:
+        description: 'Source branch name'
+        required: false
+        default: 'main'
+
+      module_name:
+        description: 'Odoo module name'
+        required: true
+
+# Prevent simultaneous runs
+concurrency:
+  group: sync-module
+  cancel-in-progress: false
+
+jobs:
+  sync-module:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout deploy repo
+      - name: Checkout Deploy Repo
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      # 2. Pull latest deploy repo changes
+      - name: Pull Latest Deploy Repo
+        run: |
+          git checkout main
+          git fetch origin main
+          git rebase origin/main
+
+      # 3. Validate Inputs
+      - name: Validate Inputs
+        run: |
+          if [ -z "${{ github.event.inputs.repo_url }}" ]; then
+            echo "Repository URL is required"
+            exit 1
+          fi
+
+          if [ -z "${{ github.event.inputs.module_name }}" ]; then
+            echo "Module name is required"
+            exit 1
+          fi
+
+      # 4. Add developer repo as upstream
+      - name: Add Upstream Repo
+        run: |
+          git remote add upstream ${{ github.event.inputs.repo_url }}
+
+      # 5. Fetch upstream branch
+      - name: Fetch Upstream Branch
+        run: |
+          git fetch upstream ${{ github.event.inputs.branch_name }}
+
+      # 6. Verify module exists and is a valid Odoo module
+      - name: Verify Odoo Module
+        run: |
+          if ! git cat-file -e upstream/${{ github.event.inputs.branch_name }}:${{ github.event.inputs.module_name }}/__manifest__.py; then
+            echo "Invalid Odoo module or module does not exist!"
+            exit 1
+          fi
+
+      # 7. Sync selected module
+      - name: Sync Selected Module
+        run: |
+          echo "Syncing module: ${{ github.event.inputs.module_name }}"
+
+          # Remove old module completely
+          rm -rf "${{ github.event.inputs.module_name }}"
+
+          # Pull fresh module from upstream
+          git checkout upstream/${{ github.event.inputs.branch_name }} -- \
+          "${{ github.event.inputs.module_name }}"
+
+      # 8. Commit changes
+      - name: Commit Changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add "${{ github.event.inputs.module_name }}"
+
+          # Skip commit if no changes
+          if git diff --cached --quiet; then
+            echo "No changes detected"
+            exit 0
+          fi
+
+          git commit -m "Updated module: ${{ github.event.inputs.module_name }} from ${{ github.event.inputs.branch_name }}"
+
+      # 9. Push changes safely
+      - name: Push Changes
+        run: |
+          branch="main"
+
+          for i in 1 2 3; do
+            echo "Push attempt $i"
+
+            git fetch origin $branch
+            git rebase origin/$branch
+
+            if git push origin HEAD:$branch; then
+              echo "Push successful"
+              exit 0
+            fi
+
+            echo "Push failed. Retrying in 5 seconds..."
+            sleep 5
+          done
+
+          echo "Push failed after 3 attempts"
+          exit 1

@@ -7,4 +7,4 @@ class SampleHello(models.Model):
     name = fields.Char(string='Name', required=True)
 
 
-    THIS IS FOR TESTING
+    THIS IS FOR TESTING DUMMY

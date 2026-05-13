@@ -1,4 +1,4 @@
-name: Sync Specific Odoo Module dynamically
+name: Sync Path From Developer Repo
 
 permissions:
   contents: write
@@ -15,17 +15,17 @@ on:
         required: false
         default: 'main'
 
-      module_name:
-        description: 'Odoo module name'
+      path_name:
+        description: 'File or folder path to sync'
         required: true
 
 # Prevent simultaneous runs
 concurrency:
-  group: sync-module
+  group: sync-path
   cancel-in-progress: false
 
 jobs:
-  sync-module:
+  sync-path:
     runs-on: ubuntu-latest
 
     steps:
@@ -35,27 +35,27 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 2. Pull latest deploy repo changes
-      - name: Pull Latest Deploy Repo
+      # 2. Sync deploy repo with latest main
+      - name: Sync Deploy Repo
         run: |
           git checkout main
           git fetch origin main
           git rebase origin/main
 
-      # 3. Validate Inputs
+      # 3. Validate inputs
       - name: Validate Inputs
         run: |
           if [ -z "${{ github.event.inputs.repo_url }}" ]; then
-            echo "Repository URL is required"
+            echo "repo_url is required"
             exit 1
           fi
 
-          if [ -z "${{ github.event.inputs.module_name }}" ]; then
-            echo "Module name is required"
+          if [ -z "${{ github.event.inputs.path_name }}" ]; then
+            echo "path_name is required"
             exit 1
           fi
 
-      # 4. Add developer repo as upstream
+      # 4. Add upstream repo dynamically
       - name: Add Upstream Repo
         run: |
           git remote add upstream ${{ github.event.inputs.repo_url }}
@@ -65,25 +65,23 @@ jobs:
         run: |
           git fetch upstream ${{ github.event.inputs.branch_name }}
 
-      # 6. Verify module exists and is a valid Odoo module
-      - name: Verify Odoo Module
+      # 6. Verify path exists (file or folder)
+      - name: Verify Path Exists
         run: |
-          if ! git cat-file -e upstream/${{ github.event.inputs.branch_name }}:${{ github.event.inputs.module_name }}/__manifest__.py; then
-            echo "Invalid Odoo module or module does not exist!"
+          if ! git cat-file -e upstream/${{ github.event.inputs.branch_name }}:${{ github.event.inputs.path_name }}; then
+            echo "Path does not exist in upstream repo!"
             exit 1
           fi
 
-      # 7. Sync selected module
-      - name: Sync Selected Module
+      # 7. Sync selected path
+      - name: Sync Path
         run: |
-          echo "Syncing module: ${{ github.event.inputs.module_name }}"
+          echo "Syncing: ${{ github.event.inputs.path_name }}"
 
-          # Remove old module completely
-          rm -rf "${{ github.event.inputs.module_name }}"
+          rm -rf "${{ github.event.inputs.path_name }}"
 
-          # Pull fresh module from upstream
           git checkout upstream/${{ github.event.inputs.branch_name }} -- \
-          "${{ github.event.inputs.module_name }}"
+          "${{ github.event.inputs.path_name }}"
 
       # 8. Commit changes
       - name: Commit Changes
@@ -91,17 +89,16 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git add "${{ github.event.inputs.module_name }}"
+          git add "${{ github.event.inputs.path_name }}"
 
-          # Skip commit if no changes
           if git diff --cached --quiet; then
             echo "No changes detected"
             exit 0
           fi
 
-          git commit -m "Updated module: ${{ github.event.inputs.module_name }} from ${{ github.event.inputs.branch_name }}"
+          git commit -m "Synced path: ${{ github.event.inputs.path_name }} from ${{ github.event.inputs.repo_url }}"
 
-      # 9. Push changes safely
+      # 9. Push safely with retry
       - name: Push Changes
         run: |
           branch="main"
@@ -117,7 +114,7 @@ jobs:
               exit 0
             fi
 
-            echo "Push failed. Retrying in 5 seconds..."
+            echo "Push failed, retrying..."
             sleep 5
           done
 

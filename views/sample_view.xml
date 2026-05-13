@@ -34,4 +34,3 @@
               name="Hello Records"
               parent="menu_sample_root"
               action="action_sample_hello"/>
-</odoo>

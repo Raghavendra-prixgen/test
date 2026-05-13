@@ -10,7 +10,7 @@ on:
         description: 'Odoo module name'
         required: true
 
-# Prevent multiple workflow runs from pushing at same time
+# Prevent multiple workflow runs at same time
 concurrency:
   group: sync-module
   cancel-in-progress: false
@@ -64,10 +64,33 @@ jobs:
 
           git add ${{ github.event.inputs.module_name }}
 
-          git commit -m "Updated module: ${{ github.event.inputs.module_name }}" || echo "No changes to commit"
+          # Skip commit if no changes
+          if git diff --cached --quiet; then
+            echo "No changes detected"
+            exit 0
+          fi
 
-      # 8. Safe push
+          git commit -m "Updated module: ${{ github.event.inputs.module_name }}"
+
+      # 8. Safe push with retry
       - name: Push Changes
         run: |
-          git pull --rebase origin main
-          git push origin main
+          branch="main"
+
+          for i in 1 2 3; do
+            echo "Attempt $i"
+
+            git fetch origin $branch
+            git rebase origin/$branch
+
+            if git push origin HEAD:$branch; then
+              echo "Push successful"
+              exit 0
+            fi
+
+            echo "Push failed. Retrying..."
+            sleep 5
+          done
+
+          echo "Push failed after 3 attempts"
+          exit 1

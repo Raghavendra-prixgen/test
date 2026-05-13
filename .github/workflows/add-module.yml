@@ -1,0 +1,101 @@
+name: Add New Odoo Module
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      module_name:
+        description: 'New Odoo module name'
+        required: true
+
+concurrency:
+  group: add-new-module
+  cancel-in-progress: false
+
+jobs:
+  add-module:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout deploy repo
+      - name: Checkout Deploy Repo
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      # 2. Sync latest deploy repo state
+      - name: Sync with Remote Main
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+
+      # 3. Add developer repo as upstream
+      - name: Add Upstream Repo
+        run: |
+          git remote add upstream https://github.com/Raghavendra-prixgen/new-test-.git
+
+      # 4. Fetch upstream repo
+      - name: Fetch Upstream
+        run: |
+          git fetch upstream
+
+      # 5. Verify module exists in upstream repo
+      - name: Verify Module Exists Upstream
+        run: |
+          if ! git ls-tree -d upstream/main -- "${{ github.event.inputs.module_name }}" | grep "${{ github.event.inputs.module_name }}"; then
+            echo "Module does not exist in upstream repo!"
+            exit 1
+          fi
+
+      # 6. Ensure module does NOT already exist locally
+      - name: Verify Module Does Not Exist Locally
+        run: |
+          if [ -d "${{ github.event.inputs.module_name }}" ]; then
+            echo "Module already exists in deploy repo!"
+            exit 1
+          fi
+
+      # 7. Add entire module from upstream
+      - name: Add New Module
+        run: |
+          git checkout upstream/main -- "${{ github.event.inputs.module_name }}"
+
+      # 8. Commit changes
+      - name: Commit Changes
+        run: |
+          git config user.name "Raghavendra-prixgen"
+          git config user.email "raghavendra.krishnamurthy@prixgen.com"
+
+          git add "${{ github.event.inputs.module_name }}"
+
+          if git diff --cached --quiet; then
+            echo "No changes detected"
+            exit 0
+          fi
+
+          git commit -m "Added new module: ${{ github.event.inputs.module_name }}"
+
+      # 9. Push safely with retry
+      - name: Push Changes
+        run: |
+          branch="main"
+
+          for i in 1 2 3; do
+            echo "Attempt $i"
+
+            git fetch origin $branch
+            git rebase origin/$branch
+
+            if git push origin HEAD:$branch; then
+              echo "Push successful"
+              exit 0
+            fi
+
+            echo "Push failed. Retrying..."
+            sleep 5
+          done
+
+          echo "Push failed after 3 attempts"
+          exit 1
